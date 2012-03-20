@@ -10,6 +10,37 @@ from zeam.component.site import getSite
 from zope.component import adaptedBy
 
 
+OPTIONS = set(['name', 'provides'])
+
+
+class DecoratedComponentGrokker(martian.GlobalGrokker):
+
+    def grok(self, name, module, module_info, config, **kw):
+        components = module_info.getAnnotation('zeam.components', [])
+
+        for factory, specs, options in components:
+            if set(options.keys()).difference(OPTIONS):
+                raise GrokError(u'There are unknown options for %s' % factory)
+            name = options.get('name', u'')
+            provides = options.get('provides', Interface)
+            validated_specs = []
+            for value in specs:
+                if value is None:
+                    validated_specs.append(Interface)
+                elif ISpecification.providedBy(value) or isclass(value):
+                    validated_specs.append(value)
+                else:
+                    raise GrokError(
+                        u"Invalid adaption argument %r for %r" % (
+                            value, factory))
+            validated_specs = tuple(validated_specs)
+            config.action(
+                discriminator=('component', validated_specs, provides, name),
+                callable=getSite().register,
+                args=(factory, validated_specs, provides, name))
+        return len(components) != 0
+
+
 class ComponentGrokker(martian.ClassGrokker):
     martian.component(zeam.component.Component)
     martian.directive(zeam.component.provides)

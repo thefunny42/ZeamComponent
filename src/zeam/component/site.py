@@ -52,11 +52,16 @@ addCleanUp(global_site.clear)
 def getSite():
     return global_site
 
-def queryComponent(specs=(), provided=Interface, name=u'', default=None):
-    return getSite().lookup(specs, provided, name, default)
-
-def getComponent(specs=(), provided=Interface, name=u''):
-    component = queryComponent(specs, provided, name, default=_marker)
+def getComponent(specs=(), provided=Interface, name=u'', default=_marker):
+    component = getSite().lookup(specs, provided, name, default)
     if component is _marker:
         raise ComponentLookupError(specs, provided, name)
     return component
+
+def getWrapper(specs=(), provided=Interface, name=u'', default=_marker):
+    if not isinstance(specs, tuple):
+        specs = (specs,)
+    component = getSite().lookup(specs, provided, name, default)
+    if component is _marker:
+        raise ComponentLookupError(specs, provided, name)
+    return component(*specs)

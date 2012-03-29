@@ -32,6 +32,10 @@ class Site(object):
         specs = readSpecification(specs, specificationOfInstance)
         return self.components.lookup(specs, provided, name, default)
 
+    def lookupAll(self, specs=(), provided=Interface):
+        specs = readSpecification(specs, specificationOfInstance)
+        return self.components.lookupAll(specs, provided)
+
     def register(self, component, for_=None, provided=Interface, name=u''):
         if for_ is None:
             for_ = tuple()
@@ -57,6 +61,9 @@ def getComponent(specs=(), provided=Interface, name=u'', default=_marker):
     if component is _marker:
         raise ComponentLookupError(specs, provided, name)
     return component
+
+def getAllComponents(specs=(), provided=Interface):
+    return getSite().lookupAll(specs, provided)
 
 def getWrapper(specs=(), provided=Interface, name=u'', default=_marker):
     if not isinstance(specs, tuple):

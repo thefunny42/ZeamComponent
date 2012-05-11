@@ -44,6 +44,14 @@ class Site(object):
         specs = readSpecification(for_, specificationOfClass)
         self.components.register(specs, provided, name, component)
 
+    def unregister(self, for_=None, provided=Interface, name=u''):
+        if for_ is None:
+            for_ = tuple()
+        else:
+            assert isinstance(for_, tuple) or ISpecification.providedBy(for_)
+        specs = readSpecification(for_, specificationOfClass)
+        self.components.unregister(specs, provided, name)
+
     def clear(self):
         self.components = AdapterRegistry()
 

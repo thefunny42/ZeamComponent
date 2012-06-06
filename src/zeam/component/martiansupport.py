@@ -50,10 +50,11 @@ class ComponentGrokker(martian.ClassGrokker):
         specs = adaptedBy(factory)
         context = grokcore.component.context.bind(
             get_default=lambda *args, **kwargs: None).get(factory)
-        if specs is None and context is not None:
-            validated_specs = (context,)
+        validated_specs = []
+        if specs is None:
+            if context is not None:
+                validated_specs = [context,]
         else:
-            validated_specs = []
             default = context is not None and context or Interface
             for value in specs:
                 if value is None:
